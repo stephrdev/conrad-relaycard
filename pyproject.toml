@@ -1,0 +1,30 @@
+[tool.black]
+exclude = '''
+/(
+    \.git
+    | \.caches
+    | \.tox
+    | venv
+    | _build
+    | build
+    | dist
+    | logs
+
+)/
+'''
+
+[tool.ruff]
+# see https://beta.ruff.rs/docs/rules/
+select = ["B", "C90", "E", "F", "N", "PT", "W", "Q", "UP", "I"]
+
+cache-dir = ".caches/.ruff"
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.ruff.isort]
+known-first-party = ["relaycard"]
+
+[tool.pytest.ini_options]
+cache_dir = ".caches/.pytest"
+

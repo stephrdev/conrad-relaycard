@@ -1,4 +1,4 @@
-class RelayState(object):
+class RelayState:
     state = None
 
     def __init__(self, state=None):
@@ -8,16 +8,18 @@ class RelayState(object):
             self.state = dict([(i, False) for i in range(0, 8)])
 
     def __repr__(self):
-        return '<RelayState mask:%s>' % '{0:08b}'.format(self.to_byte())
+        return "<RelayState mask:%s>" % f"{self.to_byte():08b}"
 
     def to_byte(self):
-        return int(''.join(reversed(
-            ['1' if self.state[i] else '0' for i in range(0, 8)])), 2)
+        return int(
+            "".join(reversed(["1" if self.state[i] else "0" for i in range(0, 8)])), 2
+        )
 
     def from_byte(self, state):
         assert 0 <= state < 256
-        self.state = dict([(i, j == '1') for i, j in enumerate(
-            reversed('{0:08b}'.format(state)))])
+        self.state = dict(
+            [(i, j == "1") for i, j in enumerate(reversed(f"{state:08b}"))]
+        )
 
     def get_port(self, port):
         assert 0 <= port < 8

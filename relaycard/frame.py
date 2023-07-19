@@ -1,7 +1,7 @@
 from .constants import COMMANDS, RESPONSES
 
 
-class RequestFrame(object):
+class RequestFrame:
     command = None
     address = None
     data = None
@@ -18,8 +18,12 @@ class RequestFrame(object):
         self.data = data
 
     def __repr__(self):
-        return '<RequestFrame %s/addr:%s data:%s crc:%s>' % (
-            COMMANDS[self.command], self.address, self.data, self.crc)
+        return "<RequestFrame {}/addr:{} data:{} crc:{}>".format(
+            COMMANDS[self.command],
+            self.address,
+            self.data,
+            self.crc,
+        )
 
     @property
     def crc(self):
@@ -29,7 +33,7 @@ class RequestFrame(object):
         return bytearray([self.command, self.address, self.data, self.crc])
 
 
-class ResponseFrame(object):
+class ResponseFrame:
     command = None
     address = None
     data = None
@@ -49,5 +53,9 @@ class ResponseFrame(object):
         self.crc = response[3]
 
     def __repr__(self):
-        return '<ResponseFrame %s/addr:%s data:%s crc:%s>' % (
-            RESPONSES[self.command], self.address, self.data, self.crc)
+        return "<ResponseFrame {}/addr:{} data:{} crc:{}>".format(
+            RESPONSES[self.command],
+            self.address,
+            self.data,
+            self.crc,
+        )
