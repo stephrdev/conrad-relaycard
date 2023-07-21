@@ -21,10 +21,6 @@ from .state import RelayState
 
 
 class RelayCard:
-    port = None
-    card_count = 0
-    is_initialized = False
-
     def __init__(self, port="/dev/ttyAMA0"):
         self.port = port
 
@@ -133,9 +129,7 @@ class RelayCard:
         return self.is_initialized
 
     def get_ports(self, address):
-        response = self.execute_retry(
-            CMD_GETPORT, lambda r: r.command == RESP_GETPORT, address
-        )
+        response = self.execute_retry(CMD_GETPORT, lambda r: r.command == RESP_GETPORT, address)
         return RelayState(response.data)
 
     def get_port(self, address, port):
@@ -161,8 +155,7 @@ class RelayCard:
         response = self.execute_retry(
             CMD_SETSINGLE if port_state else CMD_DELSINGLE,
             lambda r: (
-                (port_state and r.command == RESP_SETSINGLE)
-                or (not port_state and r.command == RESP_DELSINGLE)
+                (port_state and r.command == RESP_SETSINGLE) or (not port_state and r.command == RESP_DELSINGLE)
             ),
             address,
             new_state.to_byte(),

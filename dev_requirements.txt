@@ -1,3 +1,5 @@
 black
 ruff
+mypy
 pytest
+tox

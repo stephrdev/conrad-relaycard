@@ -8,15 +8,15 @@ exclude = '''
     | _build
     | build
     | dist
-    | logs
 
 )/
 '''
+line-length = 120
 
 [tool.ruff]
 # see https://beta.ruff.rs/docs/rules/
 select = ["B", "C90", "E", "F", "N", "PT", "W", "Q", "UP", "I"]
-
+ignore = ["E501"]  # black has power over line-lenght
 cache-dir = ".caches/.ruff"
 
 [tool.ruff.mccabe]
@@ -25,6 +25,26 @@ max-complexity = 10
 [tool.ruff.isort]
 known-first-party = ["relaycard"]
 
+[tool.mypy]
+ignore_missing_imports = true
+cache_dir = ".caches/.mypy"
+
 [tool.pytest.ini_options]
 cache_dir = ".caches/.pytest"
+
+[tool.coverage.run]
+branch = true
+parallel = true
+data_file = ".caches/.coverage"
+debug = ["trace"]
+
+[tool.coverage.paths]
+source = ["relaycard"]
+
+[tool.coverage.report]
+# goal is ~100%
+fail_under = 45
+show_missing = true
+precision = 2
+omit = ["*__init__.py", "setup.py"]
 

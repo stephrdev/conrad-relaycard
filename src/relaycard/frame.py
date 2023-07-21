@@ -2,11 +2,6 @@ from .constants import COMMANDS, RESPONSES
 
 
 class RequestFrame:
-    command = None
-    address = None
-    data = None
-    crc = None
-
     def __init__(self, command, address=0, data=0):
         assert command in COMMANDS
         self.command = command
