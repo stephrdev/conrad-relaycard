@@ -2,8 +2,9 @@
 import argparse
 import logging
 
-from relaycard.card import RelayCard
-from relaycard.state import RelayState
+from .card import RelayCard
+from .exceptions import RelayCardError
+from .state import RelayState
 
 
 def get_opts():
@@ -47,7 +48,8 @@ def get_opts():
     args = parser.parse_args()
 
     if args.ports:
-        assert not ("all" in args.ports and len(args.ports) > 1)
+        if "all" in args.ports and len(args.ports) > 1:
+            RelayCardError(f"Wrong ports {args.ports}. Do not mix relay port option all")
 
         if "all" in args.ports:
             args.ports = range(0, 8)
