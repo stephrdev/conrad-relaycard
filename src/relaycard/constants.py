@@ -1,43 +1,40 @@
-CMD_NOOP = 0
-CMD_SETUP = 1
-CMD_GETPORT = 2
-CMD_SETPORT = 3
-CMD_GETOPTION = 4
-CMD_SETOPTION = 5
-CMD_SETSINGLE = 6
-CMD_DELSINGLE = 7
-CMD_TOGGLE = 8
+from enum import EnumMeta, IntEnum
+from typing import Any
 
-COMMANDS = {
-    CMD_NOOP: "NOOP",
-    CMD_SETUP: "SETUP",
-    CMD_GETPORT: "GETPORT",
-    CMD_SETPORT: "SETPORT",
-    CMD_GETOPTION: "GETOPTION",
-    CMD_SETOPTION: "SETOPTION",
-    CMD_SETSINGLE: "SETSINGLE",
-    CMD_DELSINGLE: "DELSINGLE",
-    CMD_TOGGLE: "TOGGLE",
-}
 
-RESP_NOOP = 255
-RESP_SETUP = 254
-RESP_GETPORT = 253
-RESP_SETPORT = 252
-RESP_GETOPTION = 251
-RESP_SETOPTION = 250
-RESP_SETSINGLE = 249
-RESP_DELSINGLE = 248
-RESP_TOGGLE = 247
+# py3.12 will do this. So, <py3.12 needs own implementation of __contains__
+class MetaEnum(EnumMeta):
+    def __contains__(cls, item: Any) -> bool:  # noqa N805 can be called from class context so cls is good
+        try:
+            cls(item)
+        except ValueError:
+            return False
+        return True
 
-RESPONSES = {
-    RESP_NOOP: "NOOP",
-    RESP_SETUP: "SETUP",
-    RESP_GETPORT: "GETPORT",
-    RESP_SETPORT: "SETPORT",
-    RESP_GETOPTION: "GETOPTION",
-    RESP_SETOPTION: "SETOPTION",
-    RESP_SETSINGLE: "SETSINGLE",
-    RESP_DELSINGLE: "DELSINGLE",
-    RESP_TOGGLE: "TOGGLE",
-}
+
+class IntEnumBase(IntEnum, metaclass=MetaEnum):
+    pass
+
+
+class CommandCodes(IntEnumBase):
+    NOOP = 0
+    SETUP = 1
+    GETPORT = 2
+    SETPORT = 3
+    GETOPTION = 4
+    SETOPTION = 5
+    SETSINGLE = 6
+    DELSINGLE = 7
+    TOGGLE = 8
+
+
+class ResponseCodes(IntEnumBase):
+    NOOP = 255
+    SETUP = 254
+    GETPORT = 253
+    SETPORT = 252
+    GETOPTION = 251
+    SETOPTION = 250
+    SETSINGLE = 249
+    DELSINGLE = 248
+    TOGGLE = 247

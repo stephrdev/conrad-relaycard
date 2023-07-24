@@ -7,7 +7,8 @@ from .exceptions import RelayCardError
 from .state import RelayState
 
 
-def get_opts():
+# TODO use typed-argument-parser
+def get_opts() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-v", "--verbose", dest="verbose", default=0, action="count", help="Output verbosity")
@@ -49,19 +50,19 @@ def get_opts():
 
     if args.ports:
         if "all" in args.ports and len(args.ports) > 1:
-            RelayCardError(f"Wrong ports {args.ports}. Do not mix relay port option all")
+            raise RelayCardError(f"Wrong ports {args.ports}. Do not mix relay port option all")
 
         if "all" in args.ports:
             args.ports = range(0, 8)
         else:
-            args.ports = [int(i) for i in args.ports]
+            args.ports = [int(i) for i in args.port]
 
     args.loglevel = max(logging.WARNING - (args.verbose * 10), 10)
 
     return parser, args
 
 
-def main():  # noqa C901
+def main() -> None:  # noqa C901
     parser, args = get_opts()
 
     logging.basicConfig(level=args.loglevel, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -88,14 +89,14 @@ def main():  # noqa C901
 
         state = card.get_ports(args.address)
 
-        for i in sorted(state.state):
+        for i in sorted(state._state):
             if args.ports and i not in args.ports:
                 continue
 
             if not args.quiet:
-                print(f"Port {i} is {'on' if state.state[i] else 'off'}")
+                print(f"Port {i} is {'on' if state._state[i] else 'off'}")
             else:
-                print(f"port{i}={1 if state.state[i] else 0}")
+                print(f"port{i}={1 if state._state[i] else 0}")
 
     elif args.do_set_ports and args.do_set_ports in ("on", "off") and args.address:
         if not args.quiet:

@@ -1,5 +1,6 @@
 import pytest
 
+from relaycard.exceptions import RelayCardError
 from relaycard.state import RelayState
 
 
@@ -10,8 +11,12 @@ class TestRelayState:
         cls.rly1 = RelayState(128)
         cls.rly2 = RelayState(255)
 
+        assert repr(cls.rly0) == "<RelayState mask:00000000>"
+        assert repr(cls.rly1) == "<RelayState mask:10000000>"
+        assert repr(cls.rly2) == "<RelayState mask:11111111>"
+
     def test_relaystate(self):
-        assert self.rly0.state == {
+        assert self.rly0._state == {
             0: False,
             1: False,
             2: False,
@@ -21,7 +26,7 @@ class TestRelayState:
             6: False,
             7: False,
         }
-        assert self.rly1.state == {
+        assert self.rly1._state == {
             0: False,
             1: False,
             2: False,
@@ -31,7 +36,7 @@ class TestRelayState:
             6: False,
             7: True,
         }
-        assert self.rly2.state == {
+        assert self.rly2._state == {
             0: True,
             1: True,
             2: True,
@@ -62,9 +67,20 @@ class TestRelayState:
         self.rly2.set_port(5, True)
         assert self.rly2.to_byte() == 255
 
+        self.rly0.set_port([0, 1, 2], True)
+        assert self.rly0.to_byte() == 39
+
 
 def test_relaystate_error():
-    with pytest.raises(AssertionError, match=""):
+    with pytest.raises(RelayCardError):
         RelayState(-1)
-    with pytest.raises(AssertionError, match=""):
+    with pytest.raises(RelayCardError):
         RelayState(256)
+
+    rly = RelayState(0)
+    with pytest.raises(RelayCardError):
+        rly.from_byte(2000)
+    with pytest.raises(RelayCardError):
+        rly.get_port(2000)
+    with pytest.raises(RelayCardError):
+        rly.set_port(2000, 0)

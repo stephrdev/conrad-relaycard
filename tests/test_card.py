@@ -1,22 +1,99 @@
 from unittest import mock
 
+import pytest
+
 from relaycard.card import RelayCard
+from relaycard.exceptions import RelayCardError
+from relaycard.state import RelayState
 
 
 def test_relaycard():
     with mock.patch("serial.Serial") as mock_serial:
         mock_serial_instance = mock_serial.return_value
-        mock_serial_instance.isOpen.return_value = True
-        mock_serial_instance.inWaiting.return_value = True
-        mock_serial_instance.read.return_value = b"\x01\x05"
+        mock_serial_instance.is_open = True
+        mock_serial_instance.in_waiting = 4
+        mock_serial_instance.read.return_value = b"\x01\x05\x00\x00"
+        mock_serial_instance.write.return_value = 4
 
         rly = RelayCard("COM3")
         assert rly.setup() is True
         assert rly.is_initialized is True
         assert rly.card_count == 4
 
-        mock_serial_instance.read.return_value = b"\x01\x00"
+        mock_serial_instance.read.return_value = b"\x01\x00\x00\x00"
         rly = RelayCard("COM3")
         assert rly.setup() is True
         assert rly.is_initialized is True
         assert rly.card_count == 255
+
+        mock_serial_instance.read.return_value = b"\xFD\x00\x00\xFD"
+        assert rly.get_port(1, 0) is False
+        assert rly.get_ports(1).to_byte() == RelayState(0).to_byte()
+
+        mock_serial_instance.read.return_value = b"\xFD\x00\x01\xFC"
+        assert rly.get_port(1, 0) is True
+        assert rly.get_ports(1).to_byte() == RelayState(1).to_byte()
+
+        mock_serial_instance.read.return_value = b"\xF9\x00\x00\xF9"
+        assert rly.set_port(1, 0, True).to_byte() == RelayState(0).to_byte()
+
+        mock_serial_instance.read.return_value = b"\xFC\x00\x00\xFC"
+        assert rly.set_ports(1, RelayState(0)).to_byte() == RelayState(0).to_byte()
+
+        mock_serial_instance.read.return_value = b"\xF7\x00\x00\xF7"
+        assert rly.toggle_port(1, 0).to_byte() == RelayState(0).to_byte()
+        assert rly.toggle_ports(1, RelayState(0)).to_byte() == RelayState(0).to_byte()
+
+
+def test_relaycard_error():
+    with mock.patch("serial.Serial") as mock_serial:
+        mock_serial_instance = mock_serial.return_value
+        mock_serial_instance.is_open = False
+        mock_serial_instance.in_waiting = 4
+        mock_serial_instance.read.return_value = b"\x01\x05"
+
+        rly = RelayCard("COM3")
+        mock_serial_instance.port = "COM3"
+        with pytest.raises(RelayCardError, match="Port COM3"):
+            rly._get_serial_port()
+
+        with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
+            rly.get_port(2000, 0)
+        with pytest.raises(RelayCardError, match="Wrong relay port 2000"):
+            rly.get_port(1, 2000)
+        with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
+            rly.get_ports(2000)
+        with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
+            rly.set_port(2000, 0, True)
+        with pytest.raises(RelayCardError, match="Wrong relay port 2000"):
+            rly.set_port(1, 2000, True)
+        with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
+            rly.set_ports(2000, RelayState(0))
+        with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
+            rly.toggle_port(2000, 0)
+        with pytest.raises(RelayCardError, match="Wrong relay port 2000"):
+            rly.toggle_port(1, 2000)
+        with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
+            rly.toggle_ports(2000, RelayState(0))
+
+        mock_serial_instance.read.return_value = b"\x00\x00\x00\x00"
+        mock_serial_instance.is_open = True
+        rly.card_count = 5
+        with pytest.raises(RelayCardError, match="Wrong length of send bytes:"):
+            rly.get_port(1, 0)
+
+        mock_serial_instance.write.return_value = 4
+        with pytest.raises(RelayCardError, match="Retry #3: Wrong response 0."):
+            rly.get_port(1, 0)
+
+
+def test_relaycard_internal():
+    with mock.patch("serial.Serial") as mock_serial:
+        mock_serial_instance = mock_serial.return_value
+        mock_serial_instance.is_open = False
+        mock_serial_instance.in_waiting = 0
+        mock_serial_instance.read.return_value = b"\x01\x05"
+
+        rly = RelayCard("COM3")
+        with pytest.raises(RelayCardError, match="Initialize serial connection before sending"):
+            rly._send_frame(0)

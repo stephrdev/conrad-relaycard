@@ -2,4 +2,5 @@ black
 ruff
 mypy
 pytest
+pytest-cov
 tox
