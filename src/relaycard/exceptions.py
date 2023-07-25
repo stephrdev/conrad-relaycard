@@ -1,0 +1,2 @@
+class RelayCardError(Exception):
+    pass
