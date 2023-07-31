@@ -65,6 +65,7 @@ def test_relaycard_error():
         with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
             rly.get_port(2000, 0)
         with pytest.raises(RelayCardError, match="Wrong relay port 2000"):
+            mock_serial_instance.read.return_value = b"\xFD\x00\x00\xFD"
             rly.get_port(1, 2000)
         with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
             rly.get_ports(2000)
@@ -83,8 +84,10 @@ def test_relaycard_error():
 
         mock_serial_instance.read.return_value = b"\x00\x00\x00\x00"
         mock_serial_instance.is_open = True
+        mock_serial_instance.write.return_value = 3
         rly.card_count = 5
         with pytest.raises(RelayCardError, match="Wrong length of send bytes:"):
+            # Retry #3: Wrong response length b'\\xfd\\x00\\x00'. Expected 4
             rly.get_port(1, 0)
 
         mock_serial_instance.write.return_value = 4
