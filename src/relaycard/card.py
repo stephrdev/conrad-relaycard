@@ -41,7 +41,7 @@ class RelayCard:
 
         return self._serial_port
 
-    def _execute(self, command: CommandCodes, address: int = 0, data: int = 0) -> ResponseFrame:
+    def _execute(self, command: CommandCodes, address: int, data: int) -> ResponseFrame:
         if not (0 < address <= self.card_count):
             raise RelayCardError(f"Wrong relay address {address}. Expected 1-{self.card_count}")
 
@@ -50,7 +50,7 @@ class RelayCard:
     def _execute_retry(
         self,
         com_codes: ComCodes,
-        address: int = 0,
+        address: int,
         data: int = 0,
         retries: int = 3,
     ) -> ResponseFrame:

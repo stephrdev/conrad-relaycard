@@ -64,8 +64,8 @@ def test_relaycard_error():
 
         with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
             rly.get_port(2000, 0)
+        mock_serial_instance.read.return_value = b"\xFD\x00\x00\xFD"
         with pytest.raises(RelayCardError, match="Wrong relay port 2000"):
-            mock_serial_instance.read.return_value = b"\xFD\x00\x00\xFD"
             rly.get_port(1, 2000)
         with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
             rly.get_ports(2000)
