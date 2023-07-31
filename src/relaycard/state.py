@@ -2,12 +2,8 @@ from .exceptions import RelayCardError
 
 
 class RelayState:
-    def __init__(self, state: int | None = None):
-        self._state: dict[int, bool]
-        if state:
-            self._state = self.from_byte(state)
-        else:
-            self._state = dict([(i, False) for i in range(0, 8)])
+    def __init__(self, state: int = 0):
+        self._state = self.from_byte(state)
 
     def __repr__(self) -> str:
         return f"<RelayState mask:{self.to_byte():08b}>"

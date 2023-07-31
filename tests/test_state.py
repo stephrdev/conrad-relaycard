@@ -72,15 +72,15 @@ class TestRelayState:
 
 
 def test_relaystate_error():
-    with pytest.raises(RelayCardError):
+    with pytest.raises(RelayCardError, match="Wrong state -1"):
         RelayState(-1)
-    with pytest.raises(RelayCardError):
+    with pytest.raises(RelayCardError, match="Wrong state 256"):
         RelayState(256)
 
     rly = RelayState(0)
-    with pytest.raises(RelayCardError):
+    with pytest.raises(RelayCardError, match="Wrong state 2000"):
         rly.from_byte(2000)
-    with pytest.raises(RelayCardError):
+    with pytest.raises(RelayCardError, match="Wrong relay port 2000"):
         rly.get_port(2000)
-    with pytest.raises(RelayCardError):
-        rly.set_port(2000, 0)
+    with pytest.raises(RelayCardError, match="Wrong relay port 2000"):
+        rly.set_port(2000, True)

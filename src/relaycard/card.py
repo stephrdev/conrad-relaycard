@@ -139,9 +139,6 @@ class RelayCard:
         return RelayState(response.data)
 
     def get_port(self, address: int, port: int) -> bool:
-        if not (0 <= port <= 7):
-            raise RelayCardError(f"Wrong relay port {port}. Expected 0-7")
-
         return self.get_ports(address).get_port(port)
 
     def set_ports(self, address: int, new_state: RelayState) -> RelayState:
@@ -154,9 +151,6 @@ class RelayCard:
         return RelayState(response.data)
 
     def set_port(self, address: int, port: int, port_state: int) -> RelayState:
-        if not (0 <= port <= 7):
-            raise RelayCardError(f"Wrong relay port {port}. Expected 0-7")
-
         new_state = RelayState()
         new_state.set_port(port, True)
 
@@ -182,9 +176,6 @@ class RelayCard:
         return RelayState(response.data)
 
     def toggle_port(self, address: int, port: int) -> RelayState:
-        if not (0 <= port <= 7):
-            raise RelayCardError(f"Wrong relay port {port}. Expected 0-7")
-
         toggle_state = RelayState()
         toggle_state.set_port(port, True)
 
