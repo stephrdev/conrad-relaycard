@@ -8,11 +8,11 @@ class RequestFrame:
             raise RelayCardError(f"Wrong command{command}. Not found in {CommandCodes}")
         self.command = command
 
-        if not (0 <= address < 255):
+        if not (0 <= address <= 255):
             raise RelayCardError(f"Wrong address {address}. Expected 0-255")
         self.address = address
 
-        if not (0 <= data < 255):
+        if not (0 <= data <= 255):
             raise RelayCardError(f"Wrong data {data}. Expected 0-255")
         self.data = data
 

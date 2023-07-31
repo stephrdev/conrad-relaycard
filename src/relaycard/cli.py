@@ -55,7 +55,7 @@ def get_opts() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
         if "all" in args.ports:
             args.ports = range(0, 8)
         else:
-            args.ports = [int(i) for i in args.port]
+            args.ports = [int(i) for i in args.ports]
 
     args.loglevel = max(logging.WARNING - (args.verbose * 10), 10)
 
