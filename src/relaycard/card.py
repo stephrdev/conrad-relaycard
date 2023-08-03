@@ -12,7 +12,7 @@ from .state import RelayState
 
 
 class RelayCard:
-    def __init__(self, port: str = "/dev/ttyAMA0"):
+    def __init__(self, port: str):
         self.port: str = port
         self.card_count: int = 0
 
