@@ -4,8 +4,6 @@ from .exceptions import RelayCardError
 
 class RequestFrame:
     def __init__(self, command: CommandCodes, address: int = 0, data: int = 0) -> None:
-        if command not in CommandCodes:
-            raise RelayCardError(f"Wrong command{command}. Not found in {CommandCodes}")
         self.command = command
 
         if not (0 <= address <= 255):

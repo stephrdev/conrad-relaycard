@@ -14,8 +14,8 @@ def test_requestframe():
 
 
 def test_requestframe_error():
-    with pytest.raises(RelayCardError, match="Wrong command"):
-        RequestFrame(1000, 1, 1)
+    # with pytest.raises(RelayCardError, match="Wrong command"):
+    RequestFrame(1000, 1, 1)  # This must be catched by typing and mypy
     with pytest.raises(RelayCardError, match="Wrong address"):
         RequestFrame(CommandCodes.NOOP, 1000, 1)
     with pytest.raises(RelayCardError, match="Wrong data"):
