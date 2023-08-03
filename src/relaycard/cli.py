@@ -69,9 +69,10 @@ def main() -> None:  # noqa C901
 
     card = RelayCard(args.interface)
 
-    for _ in range(0, 4):
-        if card.setup():
-            break
+    if args.do_scan or args.do_get_ports or args.do_set_ports or args.do_toggle_ports:
+        for _ in range(0, 4):
+            if card.setup():
+                break
 
     if args.do_scan:
         if not args.quiet:
