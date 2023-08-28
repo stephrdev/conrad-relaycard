@@ -34,15 +34,13 @@ def get_opts() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
         choices=("0", "1", "2", "3", "4", "5", "6", "7", "all"),
     )
 
-    parser.add_argument("--scan", action="store_true", dest="do_scan", help="Scan for relay cards")
-
-    parser.add_argument("--get-ports", action="store_true", dest="do_get_ports", help="Get port states on relay card")
-
-    parser.add_argument(
+    do_group = parser.add_mutually_exclusive_group()
+    do_group.add_argument("--scan", action="store_true", dest="do_scan", help="Scan for relay cards")
+    do_group.add_argument("--get-ports", action="store_true", dest="do_get_ports", help="Get port states on relay card")
+    do_group.add_argument(
         "--set-ports", default=None, metavar="STATE", dest="do_set_ports", help="Set port states on relay card <on/off>"
     )
-
-    parser.add_argument(
+    do_group.add_argument(
         "--toggle-ports", action="store_true", dest="do_toggle_ports", help="Toggle port states on relay card"
     )
 
