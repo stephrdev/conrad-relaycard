@@ -55,7 +55,7 @@ def get_opts() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
         if "all" in args.ports:
             args.ports = range(0, 8)
         else:
-            args.ports = [int(i) for i in args.port]
+            args.ports = [int(i) for i in args.ports]
 
     args.loglevel = max(logging.WARNING - (args.verbose * 10), 10)
 
@@ -69,9 +69,10 @@ def main() -> None:  # noqa C901
 
     card = RelayCard(args.interface)
 
-    for _ in range(0, 4):
-        if card.setup():
-            break
+    if args.do_scan or args.do_get_ports or args.do_set_ports or args.do_toggle_ports:
+        for _ in range(0, 4):
+            if card.setup():
+                break
 
     if args.do_scan:
         if not args.quiet:

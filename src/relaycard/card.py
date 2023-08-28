@@ -1,17 +1,18 @@
+from __future__ import annotations
+
 import logging
 import time
-from collections.abc import Callable
 
 import serial
 
-from .constants import CommandCodes, ResponseCodes
+from .constants import ComCodes, CommandCodes
 from .exceptions import RelayCardError
 from .frame import RequestFrame, ResponseFrame
 from .state import RelayState
 
 
 class RelayCard:
-    def __init__(self, port: str = "/dev/ttyAMA0"):
+    def __init__(self, port: str):
         self.port: str = port
         self.card_count: int = 0
 
@@ -42,7 +43,7 @@ class RelayCard:
 
         return self._serial_port
 
-    def _execute(self, command: CommandCodes, address: int = 0, data: int = 0) -> ResponseFrame:
+    def _execute(self, command: CommandCodes, address: int, data: int) -> ResponseFrame:
         if not (0 < address <= self.card_count):
             raise RelayCardError(f"Wrong relay address {address}. Expected 1-{self.card_count}")
 
@@ -50,22 +51,24 @@ class RelayCard:
 
     def _execute_retry(
         self,
-        command: CommandCodes,
-        validator: Callable[[ResponseFrame], bool],
-        address: int = 0,
+        com_codes: ComCodes,
+        address: int,
         data: int = 0,
         retries: int = 3,
     ) -> ResponseFrame:
-        error_log = None
+        error_log: None | RelayCardError | str = None
+        response = None
         for _i in range(1, retries + 1):
             try:
-                response = self._execute(command, address, data)
-                if validator(response):
+                response = self._execute(com_codes.command_code, address, data)
+                if response.command == com_codes.response_code:
                     break
             except RelayCardError as e:
                 error_log = e
         else:
             # this is skipped if break called
+            if error_log is None:
+                error_log = f"Wrong response value {response}. Expected {com_codes.response_code.name}"
             logging.error(f"Error, retry #{_i}: {error_log}")
             raise RelayCardError(f"Retry #{_i}: {error_log}")
         return response
@@ -135,37 +138,26 @@ class RelayCard:
         return self.is_initialized
 
     def get_ports(self, address: int) -> RelayState:
-        response = self._execute_retry(CommandCodes.GETPORT, lambda r: r.command == ResponseCodes.GETPORT, address)
+        response = self._execute_retry(ComCodes.GETPORT, address)
         return RelayState(response.data)
 
     def get_port(self, address: int, port: int) -> bool:
-        if not (0 <= port <= 7):
-            raise RelayCardError(f"Wrong relay port {port}. Expected 0-7")
-
         return self.get_ports(address).get_port(port)
 
     def set_ports(self, address: int, new_state: RelayState) -> RelayState:
         response = self._execute_retry(
-            CommandCodes.SETPORT,
-            lambda r: r.command == ResponseCodes.SETPORT,
+            ComCodes.SETPORT,
             address,
             new_state.to_byte(),
         )
         return RelayState(response.data)
 
     def set_port(self, address: int, port: int, port_state: int) -> RelayState:
-        if not (0 <= port <= 7):
-            raise RelayCardError(f"Wrong relay port {port}. Expected 0-7")
-
         new_state = RelayState()
         new_state.set_port(port, True)
 
         response = self._execute_retry(
-            CommandCodes.SETSINGLE if port_state else CommandCodes.DELSINGLE,
-            lambda r: bool(
-                (port_state and r.command == ResponseCodes.SETSINGLE)
-                or (not port_state and r.command == ResponseCodes.DELSINGLE)
-            ),
+            ComCodes.SETSINGLE if port_state else ComCodes.DELSINGLE,
             address,
             new_state.to_byte(),
         )
@@ -174,23 +166,18 @@ class RelayCard:
 
     def toggle_ports(self, address: int, toggle_state: RelayState) -> RelayState:
         response = self._execute_retry(
-            CommandCodes.TOGGLE,
-            lambda r: r.command == ResponseCodes.TOGGLE,
+            ComCodes.TOGGLE,
             address,
             toggle_state.to_byte(),
         )
         return RelayState(response.data)
 
     def toggle_port(self, address: int, port: int) -> RelayState:
-        if not (0 <= port <= 7):
-            raise RelayCardError(f"Wrong relay port {port}. Expected 0-7")
-
         toggle_state = RelayState()
         toggle_state.set_port(port, True)
 
         response = self._execute_retry(
-            CommandCodes.TOGGLE,
-            lambda r: r.command == ResponseCodes.TOGGLE,
+            ComCodes.TOGGLE,
             address,
             toggle_state.to_byte(),
         )

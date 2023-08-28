@@ -50,15 +50,21 @@ def test_relaycard_error():
         mock_serial_instance = mock_serial.return_value
         mock_serial_instance.is_open = False
         mock_serial_instance.in_waiting = 4
-        mock_serial_instance.read.return_value = b"\x01\x05"
+        mock_serial_instance.read.return_value = b"\x01\x00\x00\x01"
+        mock_serial_instance.write.return_value = 4
 
         rly = RelayCard("COM3")
+        rly.card_count = 5
         mock_serial_instance.port = "COM3"
         with pytest.raises(RelayCardError, match="Port COM3"):
             rly._get_serial_port()
 
+        mock_serial_instance.is_open = True
+        rly._get_serial_port()
+
         with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
             rly.get_port(2000, 0)
+        mock_serial_instance.read.return_value = b"\xFD\x00\x00\xFD"
         with pytest.raises(RelayCardError, match="Wrong relay port 2000"):
             rly.get_port(1, 2000)
         with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
@@ -78,8 +84,10 @@ def test_relaycard_error():
 
         mock_serial_instance.read.return_value = b"\x00\x00\x00\x00"
         mock_serial_instance.is_open = True
+        mock_serial_instance.write.return_value = 3
         rly.card_count = 5
         with pytest.raises(RelayCardError, match="Wrong length of send bytes:"):
+            # Retry #3: Wrong response length b'\\xfd\\x00\\x00'. Expected 4
             rly.get_port(1, 0)
 
         mock_serial_instance.write.return_value = 4
