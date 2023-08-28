@@ -23,7 +23,7 @@ cache-dir = ".caches/.ruff"
 max-complexity = 10
 
 [tool.ruff.isort]
-known-first-party = ["relaycard"]
+known-first-party = ["conrad_relaycard"]
 
 [tool.mypy]
 ignore_missing_imports = true
@@ -40,7 +40,7 @@ parallel = true
 data_file = ".caches/.coverage"
 
 [tool.coverage.paths]
-source = ["relaycard"]
+source = ["conrad_relaycard"]
 
 [tool.coverage.report]
 # goal is ~100%

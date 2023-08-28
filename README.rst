@@ -11,7 +11,7 @@ Usage
 
 .. code-block:: python
 
-    from relaycard import Relaycard
+    from conrad_relaycard import Relaycard
 
     rly = Relaycard()
     rly.setup()
@@ -23,7 +23,7 @@ via CLI
 
 .. code-block:: console
 
-    usage: relaycard [-h] [-v] [-q] [-i INTERFACE] [-a ADDRESS] [-p PORT] [--scan] [--get-ports] [--set-ports STATE] [--toggle-ports]
+    usage: conrad-relaycard [-h] [-v] [-q] [-i INTERFACE] [-a ADDRESS] [-p PORT] [--scan] [--get-ports] [--set-ports STATE] [--toggle-ports]
 
     options:
       -h, --help            show this help message and exit

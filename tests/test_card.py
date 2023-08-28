@@ -2,9 +2,9 @@ from unittest import mock
 
 import pytest
 
-from relaycard.card import RelayCard
-from relaycard.exceptions import RelayCardError
-from relaycard.state import RelayState
+from conrad_relaycard.card import RelayCard
+from conrad_relaycard.exceptions import RelayCardError
+from conrad_relaycard.state import RelayState
 
 
 def test_relaycard():

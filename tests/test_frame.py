@@ -1,8 +1,8 @@
 import pytest
 
-from relaycard.constants import CommandCodes, ResponseCodes
-from relaycard.exceptions import RelayCardError
-from relaycard.frame import RequestFrame, ResponseFrame
+from conrad_relaycard.constants import CommandCodes, ResponseCodes
+from conrad_relaycard.exceptions import RelayCardError
+from conrad_relaycard.frame import RequestFrame, ResponseFrame
 
 
 def test_requestframe():
