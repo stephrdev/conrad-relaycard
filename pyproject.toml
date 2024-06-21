@@ -1,28 +1,22 @@
-[tool.black]
-exclude = '''
-/(
-    \.git
-    | \.caches
-    | \.tox
-    | venv
-    | _build
-    | build
-    | dist
-
-)/
-'''
-line-length = 120
-
 [tool.ruff]
-# see https://beta.ruff.rs/docs/rules/
-select = ["B", "C90", "E", "F", "N", "PT", "W", "Q", "UP", "I"]
-ignore = ["E501"]  # black has power over line-lenght
+line-length = 120
 cache-dir = ".caches/.ruff"
 
-[tool.ruff.mccabe]
+[tool.ruff.format]
+# behave like Black
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint]
+# see https://beta.ruff.rs/docs/rules/
+select = ["B", "C90", "E", "F", "N", "PT", "W", "Q", "UP", "I"]
+
+[tool.ruff.lint.mccabe]
 max-complexity = 10
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["conrad_relaycard"]
 
 [tool.mypy]
