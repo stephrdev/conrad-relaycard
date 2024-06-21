@@ -36,6 +36,7 @@ class RelayCard:
             )
 
         if not self._serial_port.is_open:
+            self._serial_port.close()
             raise RelayCardError(f"Port {self._serial_port.port} could not be opened")
 
         self._serial_port.reset_input_buffer()
