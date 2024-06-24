@@ -2,12 +2,10 @@ from unittest import mock
 
 import pytest
 
-from conrad_relaycard.card import RelayCard
-from conrad_relaycard.exceptions import RelayCardError
-from conrad_relaycard.state import RelayState
+from conrad_relaycard import RelayCard, RelayCardError, RelayState
 
 
-def test_relaycard():
+def test_relaycard() -> None:
     with mock.patch("serial.Serial") as mock_serial:
         mock_serial_instance = mock_serial.return_value
         mock_serial_instance.is_open = True
@@ -26,26 +24,26 @@ def test_relaycard():
         assert rly.is_initialized is True
         assert rly.card_count == 255
 
-        mock_serial_instance.read.return_value = b"\xFD\x00\x00\xFD"
+        mock_serial_instance.read.return_value = b"\xfd\x00\x00\xfd"
         assert rly.get_port(1, 0) is False
         assert rly.get_ports(1).to_byte() == RelayState(0).to_byte()
 
-        mock_serial_instance.read.return_value = b"\xFD\x00\x01\xFC"
+        mock_serial_instance.read.return_value = b"\xfd\x00\x01\xfc"
         assert rly.get_port(1, 0) is True
         assert rly.get_ports(1).to_byte() == RelayState(1).to_byte()
 
-        mock_serial_instance.read.return_value = b"\xF9\x00\x00\xF9"
+        mock_serial_instance.read.return_value = b"\xf9\x00\x00\xf9"
         assert rly.set_port(1, 0, True).to_byte() == RelayState(0).to_byte()
 
-        mock_serial_instance.read.return_value = b"\xFC\x00\x00\xFC"
+        mock_serial_instance.read.return_value = b"\xfc\x00\x00\xfc"
         assert rly.set_ports(1, RelayState(0)).to_byte() == RelayState(0).to_byte()
 
-        mock_serial_instance.read.return_value = b"\xF7\x00\x00\xF7"
+        mock_serial_instance.read.return_value = b"\xf7\x00\x00\xf7"
         assert rly.toggle_port(1, 0).to_byte() == RelayState(0).to_byte()
         assert rly.toggle_ports(1, RelayState(0)).to_byte() == RelayState(0).to_byte()
 
 
-def test_relaycard_error():
+def test_relaycard_error() -> None:
     with mock.patch("serial.Serial") as mock_serial:
         mock_serial_instance = mock_serial.return_value
         mock_serial_instance.is_open = False
@@ -64,7 +62,7 @@ def test_relaycard_error():
 
         with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
             rly.get_port(2000, 0)
-        mock_serial_instance.read.return_value = b"\xFD\x00\x00\xFD"
+        mock_serial_instance.read.return_value = b"\xfd\x00\x00\xfd"
         with pytest.raises(RelayCardError, match="Wrong relay port 2000"):
             rly.get_port(1, 2000)
         with pytest.raises(RelayCardError, match="Wrong relay address 2000"):
@@ -95,7 +93,7 @@ def test_relaycard_error():
             rly.get_port(1, 0)
 
 
-def test_relaycard_internal():
+def test_relaycard_internal() -> None:
     with mock.patch("serial.Serial") as mock_serial:
         mock_serial_instance = mock_serial.return_value
         mock_serial_instance.is_open = False

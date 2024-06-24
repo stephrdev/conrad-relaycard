@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import time
+from contextlib import suppress
 
 import serial
 
@@ -20,6 +21,10 @@ class RelayCard:
     def is_initialized(self) -> bool:
         return self.card_count > 0
 
+    def _try_close(self) -> None:
+        with suppress(Exception):
+            self._serial_port.close()
+
     def _get_serial_port(self, port: str | None = None) -> serial.Serial:
         if not hasattr(self, "_serial_port"):
             logging.debug(f"Opening serial port {port or self.port}")
@@ -36,6 +41,7 @@ class RelayCard:
             )
 
         if not self._serial_port.is_open:
+            self._try_close()
             raise RelayCardError(f"Port {self._serial_port.port} could not be opened")
 
         self._serial_port.reset_input_buffer()
@@ -45,6 +51,7 @@ class RelayCard:
 
     def _execute(self, command: CommandCodes, address: int, data: int) -> ResponseFrame:
         if not (0 < address <= self.card_count):
+            self._try_close()
             raise RelayCardError(f"Wrong relay address {address}. Expected 1-{self.card_count}")
 
         return self._send_frame(RequestFrame(command, address, data))
@@ -69,6 +76,7 @@ class RelayCard:
             # this is skipped if break called
             if error_log is None:
                 error_log = f"Wrong response value {response}. Expected {com_codes.response_code.name}"
+            self._try_close()
             logging.error(f"Error, retry #{_i}: {error_log}")
             raise RelayCardError(f"Retry #{_i}: {error_log}")
         return response
@@ -76,6 +84,7 @@ class RelayCard:
     def _send_frame(self, frame: RequestFrame) -> ResponseFrame:
         logging.info(f"Sending frame: {frame}")
         if not self.is_initialized:
+            self._try_close()
             raise RelayCardError("Initialize serial connection before sending")
 
         ser = self._get_serial_port()
@@ -84,6 +93,7 @@ class RelayCard:
         logging.debug(f"Sending bytes: {repr(out_bytes)}")
 
         if ser.write(out_bytes) != 4:
+            self._try_close()
             raise RelayCardError(f"Wrong length of send bytes: {out_bytes}. Expected 4")
 
         in_bytes = ser.read(4)
