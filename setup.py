@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name="conrad_relaycard",
-    version="0.1",
+    version="0.2",
     description="Library and commandline tool to control Conrad relay cards.",
     long_description=read("README.rst"),
     author="Stephan Jaekel",
